@@ -101,7 +101,7 @@ const DetailPage = () => {
             
             {trailer && (
               <button className="trailer-btn" onClick={() => setShowTrailer(true)}>
-                🎬 Tonton Trailer
+                🎬 Watch Trailer
               </button>
             )}
 
@@ -112,7 +112,7 @@ const DetailPage = () => {
 
         {cast.length > 0 && (
           <div className="cast-section">
-            <h2>Pemeran Utama</h2>
+            <h2>Main Cast</h2>
             <div className="cast-grid">
               {cast.slice(0, 10).map((member) => (
                 <div key={member.cast_id} className="cast-member">
