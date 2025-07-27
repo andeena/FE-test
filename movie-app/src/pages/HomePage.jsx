@@ -1,15 +1,16 @@
 import { useState, useEffect, useCallback } from 'react';
 import MovieCard from '../components/MovieCard';
 import Pagination from '../components/Pagination';
+import SkeletonCard from '../components/SkeletonCard';
 
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
 const HomePage = () => {
   const [movies, setMovies] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [query, setQuery] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState('popular');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
 
@@ -19,8 +20,8 @@ const HomePage = () => {
     setMovies([]);
 
     const url = searchTerm
-      ? `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${searchTerm}&page=${currentPage}`
-      : `https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}&page=${currentPage}`;
+      ? `https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}&page=${currentPage}`
+      : `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${searchTerm}&page=${currentPage}`;
 
     try {
       const response = await fetch(url);
@@ -29,6 +30,7 @@ const HomePage = () => {
       }
       const data = await response.json();
       if (data.results.length === 0) {
+        setMovies([]);
         setError('No movies found for your search.');
       } else {
         setMovies(data.results);
@@ -48,7 +50,7 @@ const HomePage = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     setCurrentPage(1);
-    setSearchTerm(query);
+    setSearchTerm(query.trim() === '' ? 'popular' : query);
   };
 
   const handlePageChange = (newPage) => {
@@ -69,8 +71,13 @@ const HomePage = () => {
         <button type="submit">Search</button>
       </form>
 
-      {isLoading && <p className="status-message">Loading movies...</p>}
-      {error && <p className="status-message error">{error}</p>}
+      <div className="movie-grid">
+        {isLoading ? (
+          Array.from({ length: 10 }).map((_, index) => <SkeletonCard key={index} />)
+        ) : !error ? (
+          movies.map((movie) => <MovieCard key={movie.id} movie={movie} />)
+        ) : null}
+      </div>
 
       {!isLoading && !error && (
         <>
